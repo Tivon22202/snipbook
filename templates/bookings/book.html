@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Book an appointment{% endblock %}
+{% block content %}
+<div class="narrow">
+<h1>Book an appointment</h1>
+<form method="post" class="stack" id="booking-form">{% csrf_token %}
+  {{ form.as_p }}
+  <button class="btn" type="submit">Confirm booking</button>
+</form>
+</div>
+<script>
+(function () {
+  var service = document.getElementById("id_service");
+  var day = document.getElementById("id_date");
+  var time = document.getElementById("id_time");
+  if (!service || !day || !time) return;
+  var all = Array.prototype.map.call(time.options, function (o) { return o.value; });
+  function render(values, keep) {
+    time.innerHTML = "";
+    values.forEach(function (v) {
+      var o = document.createElement("option");
+      o.value = o.textContent = v;
+      if (v === keep) o.selected = true;
+      time.appendChild(o);
+    });
+    if (!values.length) {
+      var o = document.createElement("option");
+      o.value = ""; o.textContent = "No free times on this day";
+      time.appendChild(o);
+    }
+  }
+  function refresh() {
+    if (!service.value || !day.value) return;
+    fetch("/api/slots/?date=" + encodeURIComponent(day.value) + "&service=" + encodeURIComponent(service.value))
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+      .then(function (data) { render(data.slots, time.value); })
+      .catch(function () { render(all, time.value); });
+  }
+  service.addEventListener("change", refresh);
+  day.addEventListener("change", refresh);
+  refresh();
+})();
+</script>
+{% endblock %}

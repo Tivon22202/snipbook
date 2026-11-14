@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}My bookings{% endblock %}
+{% block content %}
+<h1>My bookings</h1>
+<p><a class="btn" href="{% url 'book' %}">Book an appointment</a></p>
+<h2>Upcoming</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>When</th><th>Service</th><th>Status</th><th></th></tr></thead>
+<tbody>
+{% for b in upcoming %}
+<tr><td>{{ b.start|date:"D j M, H:i" }}</td><td>{{ b.service.name }}</td>
+<td><span class="badge {{ b.status }}">{{ b.get_status_display }}</span></td>
+<td>{% if b.can_cancel %}<form class="inline" method="post" action="{% url 'cancel_booking' b.pk %}">{% csrf_token %}<button class="btn danger sm" type="submit">Cancel</button></form>{% endif %}</td></tr>
+{% empty %}<tr><td colspan="4">Nothing booked yet. Choose a service and a time to get started.</td></tr>
+{% endfor %}
+</tbody></table></div>
+<h2 style="margin-top:2rem">History</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>When</th><th>Service</th><th>Status</th></tr></thead>
+<tbody>
+{% for b in past %}
+<tr><td>{{ b.start|date:"D j M Y, H:i" }}</td><td>{{ b.service.name }}</td><td><span class="badge {{ b.status }}">{{ b.get_status_display }}</span></td></tr>
+{% empty %}<tr><td colspan="3">No past bookings.</td></tr>
+{% endfor %}
+</tbody></table></div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Manage services{% endblock %}
+{% block content %}
+<h1>Manage services</h1>
+<p><a class="btn" href="{% url 'service_create' %}">Add service</a></p>
+<div class="table-wrap"><table>
+<thead><tr><th>Name</th><th>Duration</th><th>Price</th><th>Visible</th><th></th></tr></thead>
+<tbody>
+{% for s in services %}
+<tr><td>{{ s.name }}</td><td>{{ s.duration_minutes }} min</td><td>{{ CURRENCY }} {{ s.price|floatformat:0 }}</td><td>{{ s.is_active|yesno:"Yes,No" }}</td>
+<td><a class="btn ghost sm" href="{% url 'service_edit' s.pk %}">Edit</a>
+<form class="inline" method="post" action="{% url 'service_delete' s.pk %}" onsubmit="return confirm('Delete {{ s.name|escapejs }}?')">{% csrf_token %}<button class="btn danger sm" type="submit">Delete</button></form></td></tr>
+{% empty %}<tr><td colspan="5">No services yet. Add your first one.</td></tr>
+{% endfor %}
+</tbody></table></div>
+{% endblock %}

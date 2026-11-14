@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>Pick a service. Pick a time. Skip the queue.</h1>
+  <p>Book your chair online and see only the times that are actually free. Open Monday to Saturday, 9:00 to 18:00.</p>
+</section>
+<div class="grid">
+{% for s in services %}
+  <article class="card">
+    <h2>{{ s.name }}</h2>
+    <p class="muted">{{ s.description }}</p>
+    <p><span class="price">{{ CURRENCY }} {{ s.price|floatformat:0 }}</span> &middot; {{ s.duration_minutes }} min</p>
+    <a class="btn" href="{% url 'book' %}?service={{ s.id }}">Book this</a>
+  </article>
+{% empty %}
+  <p>No services are available yet. Check back soon.</p>
+{% endfor %}
+</div>
+{% endblock %}

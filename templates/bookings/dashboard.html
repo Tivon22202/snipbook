@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+<div class="stats">
+  <div class="card"><strong>{{ stats.today }}</strong>Bookings today</div>
+  <div class="card"><strong>{{ stats.pending }}</strong>Waiting for confirmation</div>
+  <div class="card"><strong>{{ stats.customers }}</strong>Customers served</div>
+</div>
+<form method="get" class="row">
+  <label>Date<br><input type="date" name="date" value="{{ day }}"></label>
+  <label>Status<br><select name="status"><option value="">All</option>
+    {% for value, label in statuses %}<option value="{{ value }}" {% if value == status %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select></label>
+  <button class="btn" type="submit">Filter</button>
+  <a class="btn ghost" href="{% url 'dashboard' %}">Reset</a>
+</form>
+<div class="table-wrap"><table>
+<thead><tr><th>When</th><th>Customer</th><th>Service</th><th>Notes</th><th>Status</th><th>Actions</th></tr></thead>
+<tbody>
+{% for b in bookings %}
+<tr><td>{{ b.start|date:"D j M, H:i" }}</td><td>{{ b.customer.username }}</td><td>{{ b.service.name }}</td><td>{{ b.notes }}</td>
+<td><span class="badge {{ b.status }}">{{ b.get_status_display }}</span></td>
+<td>
+  <form class="inline" method="post" action="{% url 'update_status' b.pk %}">{% csrf_token %}
+    {% if b.status == 'pending' %}<button class="btn sm" name="status" value="confirmed">Confirm</button>{% endif %}
+    {% if b.status == 'confirmed' %}<button class="btn sm" name="status" value="completed">Complete</button>{% endif %}
+    {% if b.status == 'pending' or b.status == 'confirmed' %}<button class="btn danger sm" name="status" value="cancelled">Cancel</button>{% endif %}
+  </form>
+</td></tr>
+{% empty %}<tr><td colspan="6">No bookings match. Try a different date or status.</td></tr>
+{% endfor %}
+</tbody></table></div>
+{% endblock %}
